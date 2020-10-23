@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, session, url_for, redirect, render_template, request, flash
-from model import db, User
+from model import db, User, AuditLog
 
 
 def main_menu():
@@ -14,9 +14,7 @@ def main_menu():
 
 def users_menu():
     u_menu = (
-        dict(title="Home", url="/"),
-        dict(title="List users", url="/users/"),
-        dict(title="Create user", url="/users/add"),
+        dict(title="Users", url="/users"),
         dict(title="Logout", url="/users/logout")
     )
     return u_menu + main_menu()
@@ -55,13 +53,28 @@ def login():
 
     if request.method == "POST":
         try:
-            usr = User.query.filter_by(email=request.form["email"], password=request.form["password"]).first()
-            session["user"] = dict(email=usr.email, enabled=usr.enabled)
+            usr = User.query.filter_by(
+                            email=request.form["email"], 
+                            password=request.form["password"]
+                        ).first()
+            session["user"] = dict(email=usr.email, enabled=usr.enabled, group=usr.group)
+            AuditLog.create(
+                            user_id=usr.uid,
+                            status="ok", 
+                            activity="login", 
+                            message="Successfully loged in"
+                        )
 
-            return redirect(url_for("user_dashboard"))
+            return redirect(url_for("home"))
 
         except AttributeError:
-            pass
+            AuditLog.create(
+                            user_id=usr.uid,
+                            status="fail", 
+                            activity="login", 
+                            message="Failed login with email %s" % request.form["email"]
+                        )
+            
             message = "Wrong login or password"
 
 
@@ -73,8 +86,15 @@ def login():
 
 def logout():
     if session.get("user"):
+        AuditLog.create(
+                    user_id=session.get("user")["uid"],
+                    status="ok", 
+                    activity="logout", 
+                    message="Successfully loged out"
+                )
         session.pop("user")
         flash('You were successfully logged out')
+
     
     return redirect(url_for("login"))
 
@@ -88,7 +108,6 @@ def user_dashboard():
                 page_title = "",
                 user=session["user"],
                 main_menu = users_menu())
-
 
 
 def posts(slug=None):
@@ -129,44 +148,60 @@ def users_list(uid=None):
     return render_template("users.html",
         message="",
         users=users,
+        user=session["user"],
         main_menu=users_menu()
         )
 
-def users_add():
-    # if not session.get("user"):
-    #     flash('Login is required!!!')
-    #     return redirect(url_for("login"))
+def users():
+    if not session.get("user"):
+        flash('Login is required!!!')
+        return redirect(url_for("login"))
+    
+    users = ""
 
-    if request.method == "GET":
-        #users = ", ".join(usr.email for usr in model.User.query.all())
-        return render_template(
-                "user_register.html",
-                main_menu = users_menu(),
-                message = ""
-                )
+    if session["user"]["group"] == "admins":
+        # only admins can manage users.
+        users = User.query.all()
+    else:
+        users = User.query.filter_by(uid=uid).first()
+
+    
+    if request.method != "POST":
+        return render_template("users.html",
+            message="",
+            users=users,
+            user=session["user"],
+            main_menu=users_menu()
+        )
+
     else:
         email = request.form.get("email")
         password = request.form.get("password")
+        group = request.form.get("group")
         
         # User.create(email=email, password=password)
 
-        if len(email) > 1 and len(password) > 1:
+        if len(email) > 1 and len(password) > 1 and len(group) > 1:
 
-            if User.create(email=email, password=password, enabled=1) == True:
+            if User.create(email=email, password=password, group=group, enabled=1) == True:
                 msg = f"New user with email {email} has been added."
             else:
                 msg = f"Error ocured during adding user with email {email}. Maybe it already exists."
 
             return render_template(
-                "user_register.html",
+                "users.html",
                 main_menu = users_menu(),
+                user=session["user"],
+                users=users,
                 message = msg
             )
 
         else:
             return render_template(
-                "user_register.html",
+                "users.html",
                 main_menu = users_menu(),
+                user=session["user"],
+                users=users,
                 message="Something went wrong!"
                 )
 

@@ -22,7 +22,7 @@ with app.test_request_context():
     admin_pass = getenv("ADMIN_PASSWORD", default=generate_password(15))
     admin_email = getenv("ADMIN_EMAIL", default="admin@test.com")
     try:
-        admin = User(password=admin_pass, email=admin_email)
+        admin = User(password=admin_pass, email=admin_email, group="admins")
         db.session.add(admin)
         db.session.commit()
         print(f"""

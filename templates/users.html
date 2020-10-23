@@ -2,21 +2,75 @@
 
 {% block main %}
 
-{% if users is iterable %}
-<h2>List of users</h2>
-
-{% for item in users %}
-<div class="item">
-<a href="/users/{{ item.uid }}">{{ item["email"] }}</a> <i>{{ item["enabled"] }}</i>
+{% if message != "" %}
+<div class="message">
+<b>{{message}}</b>
 </div>
-{% endfor %}
-
-{% else %}
-<h2> Info about user {{ users["email"] }}</h2>
-<p>User's uid:      {{ users["uid"] }}</p> 
-<p>User is enabled: {{ users["enabled"] }}</p>
-
 {% endif %}
+
+<h2>User management dashboard</h2>
+
+<div class="accordion" id="userDashboard">
+    <div class="card">
+        <div class="card-header" id="headingNew">
+          <h2 class="mb-New">
+            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseNew" aria-expanded="true" aria-controls="collapseNew">
+              Create new user
+            </button>
+          </h2>
+        </div>
+    
+        <div id="collapseNew" class="collapse show" aria-labelledby="headingNew" data-parent="#userDashboard">
+          <div class="card-body">
+  
+  
+              <form method="POST" action="{{ url_for('users') }}">
+                  <dl>
+                      <dt>Email</dt>
+                      <dd><input type="email" placeholder="username@domain.tld" name="email" /></dd>
+                      <dt>Password</dt>
+                      <dd><input type="password" placeholder="10+ characters" name="password" /></dd>
+                      <dt>Group</dt>
+                      <dd><select name="group">
+                          <option value="users">Users</option>
+                          {% if user["group"] == "admins" %}
+                          <option value="admins">Admins</option>
+                          {% endif %}
+                      </select>
+                      </dd>
+                  </dl>    
+                  <input type="submit" value="Save">
+              </form>
+  
+  
+          </div>
+        </div>
+      </div>
+
+
+{% if users is iterable %}
+    {% for item in users %}
+    <div class="card">
+      <div class="card-header" id="heading{{ item['uid'] }}">
+        <h2 class="mb-{{ item['uid'] }}">
+          <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse{{ item['uid'] }}" aria-expanded="true" aria-controls="collapse{{ item['uid'] }}">
+            {{ item["email"] }}
+          </button>
+        </h2>
+      </div>
+  
+      <div id="collapse{{ item['uid'] }}" class="collapse __show" aria-labelledby="heading{{ item['uid'] }}" data-parent="#userDashboard">
+        <div class="card-body">
+            <p>User's uid:      {{ users["uid"] }}</p>
+            <p>Group:           {{ users["group"] }}</p>
+            <p>User is enabled: {{ users["enabled"] }}</p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+{% endif %}
+
+</div>
 
 
 {% endblock main %}

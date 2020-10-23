@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.declarative import declarative_base
 from os import getenv
 from model import db, User
-from views import home, terms_of_use, privacy, about, users_add, users_list, login, logout, user_dashboard
+from views import home, terms_of_use, privacy, about, users, login, logout
 
 
 # GLOBAL CONFIG VARIABLES
@@ -49,13 +49,13 @@ app.add_url_rule("/about", view_func=about)
 app.add_url_rule("/users/login", view_func=login, methods=["GET", "POST"])
 app.add_url_rule("/users/logout", view_func=logout, methods=["GET", "POST"])
 
-app.add_url_rule("/users/dashboard", view_func=user_dashboard, methods=['GET','POST'])
+#app.add_url_rule("/users/dashboard", view_func=user_dashboard, methods=['GET','POST'])
 
-app.add_url_rule("/users/add", view_func=users_add, methods=['GET','POST'])
+#app.add_url_rule("/users/add", view_func=users_add, methods=['GET','POST'])
 
-app.add_url_rule("/users/", view_func=users_list)
+app.add_url_rule("/users/", view_func=users, methods=["GET", "POST"])
 
-app.add_url_rule("/users/<int:uid>", view_func=users_list)
+#app.add_url_rule("/users/<int:uid>", view_func=users_list)
 
 
 

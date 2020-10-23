@@ -1,5 +1,5 @@
 #from flask_sqlalchemy import SQLAlchemy
-
+import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 
@@ -11,6 +11,7 @@ class User(db.Model):
     uid = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
+    group = db.Column(db.String(100), unique=False, default="users")
     enabled = db.Column(db.Integer, default=1)
 
     def __repr__(self):
@@ -43,7 +44,27 @@ class User(db.Model):
         return True
 
 
+class AuditLog(db.Model):
+    __tablename__ = "audit_log"
 
+    id = db.Column(db.Integer, primary_key=True)
+    time = db.Column(db.String(25), default=str(datetime.datetime(2008, 11, 22, 19, 53, 42)), unique=False)
+    user_id = db.Column(db.Integer, unique=False)
+    activity = db.Column(db.String(100))
+    status = db.Column(db.String(10))
+    message = db.Column(db.String(350))
+
+    def __repr__(self):
+        return dict(uid=self.user_id, activity=self.activity, time=self.time)
+
+    def __str__(self):
+        return self.time, " - ", self.activity
+
+    @classmethod
+    def create(cls, **kw):
+        obj = cls(**kw)
+        db.session.add(obj)
+        db.session.commit()
 
 
 class Pages(db.Model):

@@ -2,29 +2,49 @@
 
 {% block main %}
 
-
-<H3> LOGIN PAGE </H3>
-
 {% if message != "" %}
 <div class="message">
 <b>{{message}}</b>
 </div>
 {% endif %}
 
-<form method=post action="/users/login">
-    <dl>
+<div class="row">
 
-        <dt class="hide-on-mobile">Email</dt>
-        <dd><input type="email" placeholder="username@domain.tld" name="email" /></dd>
+    <div class="col">
+        <h3> Login as existing user </h3>
+        <form method="POST" action="/users/login">
+            <dl>
 
-        <dt class="hide-on-mobile">Password</dt>
-        <dd><input type="password" name="password" /></dd>
+                <dt class="hide-on-mobile">Email</dt>
+                <dd><input type="email" placeholder="username@domain.tld" name="email" /></dd>
 
-    </dl>    
-    <input type="submit" value="Login">
-</form>
+                <dt class="hide-on-mobile">Password</dt>
+                <dd><input type="password" name="password" /></dd>
+
+            </dl>    
+            <input type="submit" value="Login">
+        </form>
+    </div>
 
 
-<p>Create a new user <a href="{{ url_for('users_add') }}">THERE</a></p>
+    <div class="col">
+        <h3>Or create a new one</h3>
+        <form method="POST" action="{{ url_for('users') }}" class="input-group">
+            <dl>
+
+                <dt>Email</dt>
+                <dd><input type="email" placeholder="username@domain.tld" name="email" /></dd>
+
+                <dt>Password</dt>
+                <dd><input type="password" placeholder="10+ characters" name="password" /></dd>
+
+                <dd><input type="hidden" name="group" value="users"></dd>
+            
+            </dl>    
+            <input type="submit" value="Save">
+        </form>
+    </div>
+
+</div>
 
 {% endblock main %}
