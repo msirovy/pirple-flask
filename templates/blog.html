@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block main %}
+<h2> Blog post lists </h2>
+
+{% for id in data %}
+<div class="item">
+<a href="/blog/{{ id }}"><h3>{{ data[id]['title'] }}</h3></a>
+<p>{{ data[id]['short'] }}</p>
+</div>
+{% endfor %}
+
+
+{% endblock main %}

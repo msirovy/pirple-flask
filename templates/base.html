@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+  <title>{{ page_title }}</title>
+</head>
+
+<body>
+
+<div class="view">
+  <div class="header">
+
+      {% with msg = get_flashed_messages() %}
+      {% if msg %}
+      <div class="notify">
+        {% for m in msg %}
+        <p class=flash>{{ m }}</p>
+        {% endfor %}
+      </div> <!-- END NOTIFY -->
+      {% endif %}
+    {% endwith %}
+    
+    <h1>{{ page_title }}</h1>
+
+    <div class="menu">
+    {% block menu %}
+    <ul>
+    {% for item in main_menu %}
+    	<li><a href="{{ item['url'] }}">{{ item['title'] }}</a></li>
+    {% endfor %}
+    </ul>
+    {% endblock menu %}
+    </div> <!-- END MENU -->
+
+  </div> <!-- END HEADER -->
+  
+  <div class="content">
+  
+  {% block main %}
+	<p> There is nothing to show you :-( </p>
+
+  {% endblock main %}
+  </div> <!-- END CONTENT -->
+</div> <!-- END VIEW -->
+
+
+</body>
+</html>

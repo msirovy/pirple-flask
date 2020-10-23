@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+
+<H3> LOGIN PAGE </H3>
+
+{% if message != "" %}
+<div class="message">
+<b>{{message}}</b>
+</div>
+{% endif %}
+
+<form method=post action="/users/login">
+    <dt>
+        <dt>Email</dt>
+        <dd><input type="email" placeholder="username@domain.tld" name="email" /></dd>
+        <dt>Password</dt>
+        <dd><input type="password" name="password" /></dd>
+    </dt>    
+    <input type="submit" value="Login">
+</form>
+
+
+<p>Create a new user <a href="{{ url_for('users_add') }}">THERE</a></p>
+
+{% endblock main %}

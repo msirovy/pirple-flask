@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+{% if users is iterable %}
+<h2>List of users</h2>
+
+{% for item in users %}
+<div class="item">
+<a href="/users/{{ item.uid }}">{{ item["email"] }}</a> <i>{{ item["enabled"] }}</i>
+</div>
+{% endfor %}
+
+{% else %}
+<h2> Info about user {{ users["email"] }}</h2>
+<p>User's uid:      {{ users["uid"] }}</p> 
+<p>User is enabled: {{ users["enabled"] }}</p>
+
+{% endif %}
+
+
+{% endblock main %}

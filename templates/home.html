@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block main %}
+<h2> Home page </h2>
+
+<p>This application has borned during pirple.com fullstack course.</p>
+
+<h3>Installation</h3>
+
+<pre class="bash">
+pip3 install -r requirements.txt
+
+./init_db.py
+
+./main.py
+
+</pre>
+
+
+<h3>Configuration</h3>
+
+<pre>
+ENV             ... default is devel
+DEBUG           ... default is True
+DB_PATH         ... path to sqlite3 db file. Default is db-${ENV}.db
+</pre>
+
+
+{% endblock main %}
