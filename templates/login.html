@@ -12,12 +12,15 @@
 {% endif %}
 
 <form method=post action="/users/login">
-    <dt>
-        <dt>Email</dt>
+    <dl>
+
+        <dt class="hide-on-mobile">Email</dt>
         <dd><input type="email" placeholder="username@domain.tld" name="email" /></dd>
-        <dt>Password</dt>
+
+        <dt class="hide-on-mobile">Password</dt>
         <dd><input type="password" name="password" /></dd>
-    </dt>    
+
+    </dl>    
     <input type="submit" value="Login">
 </form>
 

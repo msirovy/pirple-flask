@@ -3,12 +3,18 @@
 <head>
   <meta charset="utf-8">
   <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='simplegrid.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1" >
   <title>{{ page_title }}</title>
 </head>
 
-<body>
+<body class="grid grid-pad">
 
-<div class="view">
+<div class="col-1-12 hide-on-mobile">
+  <!-- left placeholder -->
+</div>
+
+<div class="view col-10-12">
   <div class="header">
 
       {% with msg = get_flashed_messages() %}
@@ -23,15 +29,17 @@
     
     <h1>{{ page_title }}</h1>
 
-    <div class="menu">
+
+    <nav class="menu grid grid-pad">
     {% block menu %}
-    <ul>
+
     {% for item in main_menu %}
-    	<li><a href="{{ item['url'] }}">{{ item['title'] }}</a></li>
+    	<div class="col-1-9 push-right"><a href="{{ item['url'] }}">{{ item['title'] }}</a></div>
     {% endfor %}
-    </ul>
+
     {% endblock menu %}
-    </div> <!-- END MENU -->
+    </nav> <!-- END MENU -->
+
 
   </div> <!-- END HEADER -->
   
@@ -43,7 +51,9 @@
   {% endblock main %}
   </div> <!-- END CONTENT -->
 </div> <!-- END VIEW -->
-
+<div class="col-1-12 hide-on-mobile">
+  <!-- right placeholder -->
+</div>
 
 </body>
 </html>

@@ -1,17 +1,18 @@
-Homework Assignment #3: 
+Homework Assignment #4: 
 =======================
 
 Background Information:
 -----------------------
- 
-Return to the project you began in homework #2. Now we begin building part of the main application. This application is going to be a "Todo List" web app. You won't be building it all today (that will take the whole course to do) but it's worth reviewing the full specs now, so you know how to design it. Here are the specs:
 
-1. A visitor should be able to visit the homepage and learn about the application. They should also be able to visit a public "Terms of Use" page, a "Privacy" page, and the "About Us" page (which you created already).
+3. Go back to your application and integrate your chosen library so that it is referenced in the <head> of every page on your site.
 
+4. Refactor your HTML templates (all of your HTML pages) to adapt your code to the grid system of the library. When you're done, every major component on every page should be responsive in some way.
 
-2. A visitor should be able to signup (with email and password). If the email address already exists then the signup should fail. On subsequent visits, the user should be able to login and logout with those credentials.
+5. Refactor your HTML to make use of the buttons, tables, modals and other styled components available in the library.
 
+6. Go through and add any extra styles or additions you feel would improve the UI or UX of the site.
 
+(I have choosen simplegrid)
 
 
 
