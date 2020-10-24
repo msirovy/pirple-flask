@@ -4,9 +4,10 @@
 
 {% if message != "" %}
 <div class="message">
-<b>{{message}}</b>
+<b>{{ message }}</b>
 </div>
 {% endif %}
+
 
 <div class="row">
 
@@ -28,8 +29,8 @@
 
 
     <div class="col">
-        <h3>Or create a new one</h3>
-        <form method="POST" action="{{ url_for('users') }}" class="input-group">
+        <h3>Or create a new user</h3>
+        <form method="POST" action="{{ url_for('user_create') }}">
             <dl>
 
                 <dt>Email</dt>

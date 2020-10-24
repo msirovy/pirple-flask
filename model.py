@@ -15,13 +15,28 @@ class User(db.Model):
     enabled = db.Column(db.Integer, default=1)
 
     def __repr__(self):
-        return f'{self.uid} ({self.email})'
+        return self.email
+
+    def __str__(self):
+        return self.email
 
     @classmethod
     def create(cls, **kw):
         try:
             obj = cls(**kw)
             db.session.add(obj)
+            db.session.commit()
+            return True
+            
+        except IntegrityError as err:
+            print(err)
+            return False
+
+    @classmethod
+    def delete(cls, **kw):
+        try:
+            obj = cls(**kw)
+            db.session.delete(obj)
             db.session.commit()
             return True
             
@@ -48,14 +63,14 @@ class AuditLog(db.Model):
     __tablename__ = "audit_log"
 
     id = db.Column(db.Integer, primary_key=True)
-    time = db.Column(db.String(25), default=str(datetime.datetime(2008, 11, 22, 19, 53, 42)), unique=False)
-    user_id = db.Column(db.Integer, unique=False)
+    time = db.Column(db.String(25), default=str(datetime.datetime.now()), unique=False)
+    email = db.Column(db.String(120), unique=False)
     activity = db.Column(db.String(100))
     status = db.Column(db.String(10))
     message = db.Column(db.String(350))
 
     def __repr__(self):
-        return dict(uid=self.user_id, activity=self.activity, time=self.time)
+        return dict(email=self.email, activity=self.activity, time=self.time, status=self.status)
 
     def __str__(self):
         return self.time, " - ", self.activity

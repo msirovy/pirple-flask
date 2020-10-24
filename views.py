@@ -1,55 +1,67 @@
 from flask import Flask, jsonify, session, url_for, redirect, render_template, request, flash
 from model import db, User, AuditLog
+from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.orm import joinedload
+from datetime import datetime
 
 
-def main_menu():
-    return (
+def menu():
+    print(session.get("user"))
+    default = (
         dict(title="Home", url="/"),
         dict(title="Terms of Use", url="/terms-of-use"),
         dict(title="Privacy", url="/privacy"),
-        dict(title="Login", url="/users/login"),
-        #dict(title="Blog", url="/blog/"),
         dict(title="About Us", url="/about")
     )
-
-def users_menu():
-    u_menu = (
-        dict(title="Users", url="/users"),
-        dict(title="Logout", url="/users/logout")
+    cust_menu = (
+        dict(title="Login", url="/users/login"),
     )
-    return u_menu + main_menu()
+    try:
+        if session["user"]["group"] == "admins":
+            cust_menu = (
+                dict(title="Admin", url="/users/"),
+                dict(title="Logout", url="/users/logout"),
+            )
+        else:
+            cust_menu = (
+                dict(title="Logout", url="/users/logout"),
+            )
+    except KeyError:
+        # keep logout in menu
+        pass
+
+    return cust_menu + default
 
 
 def home():
     return render_template("home.html", 
             page_title = "Where are you!",
-            main_menu = main_menu()
+            main_menu = menu()
         )
 
 def terms_of_use():
     return render_template("terms_of_use.html",
             page_title = "Terms of use",
-            main_menu = main_menu()
+            main_menu = menu()
             )
 
 def privacy():
     return render_template("privacy.html",
             page_title = "Privacy",
-            main_menu = main_menu()
+            main_menu = menu()
             )
 
 def about():
     return render_template("about.html",
             page_title = "About Us",
-            main_menu = main_menu()
+            main_menu = menu()
             )
 
 
-
 def login():
-    message = ""
+    msg = "You've not been authorized yet"
     if session.get("user"):
-        message = "User %s is already loged in!" % session["user"]["email"]
+        msg = "User %s is already loged in!" % session["user"]["email"]
 
     if request.method == "POST":
         try:
@@ -57,64 +69,62 @@ def login():
                             email=request.form["email"], 
                             password=request.form["password"]
                         ).first()
-            session["user"] = dict(email=usr.email, enabled=usr.enabled, group=usr.group)
+
+            session["user"] = dict(
+                            email=usr.email, 
+                            enabled=usr.enabled,
+                            group=usr.group
+                        )
+
             AuditLog.create(
-                            user_id=usr.uid,
+                            email=usr.email,
                             status="ok", 
                             activity="login", 
                             message="Successfully loged in"
                         )
-
+            msg = "Great, your login and password is valid!!!"
             return redirect(url_for("home"))
 
         except AttributeError:
             AuditLog.create(
-                            user_id=usr.uid,
+                            email=request.form["email"],
                             status="fail", 
                             activity="login", 
                             message="Failed login with email %s" % request.form["email"]
                         )
             
-            message = "Wrong login or password"
-
+            msg = "I am so sorry, there is nothing for your eyes. But you can try it again with another login and password"
 
     return render_template("login.html",
             page_title = "Login page",
-            message = message,
-            main_menu = users_menu()
+            message = msg,
+            main_menu = menu()
             )
+
 
 def logout():
     if session.get("user"):
+        usr = session.get("user")
+        session.pop("user")
+
         AuditLog.create(
-                    user_id=session.get("user")["uid"],
+                    email=usr["email"],
                     status="ok", 
                     activity="logout", 
                     message="Successfully loged out"
                 )
-        session.pop("user")
+    
         flash('You were successfully logged out')
-
     
     return redirect(url_for("login"))
 
-
-def user_dashboard():
-    if not session.get("user"):
-        flash('Login is required!!!')
-        return redirect(url_for("login"))
-
-    return render_template("user_dashboard.html",
-                page_title = "",
-                user=session["user"],
-                main_menu = users_menu())
 
 
 def posts(slug=None):
     print(f"Posts page {slug}")
     return render_template("blog.html", 
             page_title = "Blog posts",
-            main_menu = main_menu(),
+            main_menu = menu(),
             data = blog_pages()
             )
 
@@ -123,85 +133,139 @@ def post_view(id=None):
         app.logger.info("find page: ", id)
         return render_template("blog_article.html",
                 page_title="Blog posts",
-                main_menu = main_menu(),
+                main_menu = menu(),
                 data=blog_pages[id]
                 )
 
     else:
         return render_template("blog.html", 
             page_title = "Invalid blog post, please choose from posts bellow",
-            main_menu = main_menu(),
+            main_menu = menu(),
             data = blog_pages()
             )
 
-def users_list(uid=None):
-    if not session.get("user"):
-        flash('Login is required!!!')
-        return redirect(url_for("login"))
 
-    if isinstance(uid, int):
-        users = User.query.filter_by(uid=uid).first()
-    
-    else:
-        users = User.query.all()
+def user_edit(email=None):
+    action = request.method
+    print(f"Do {action} with {email}")
 
-    return render_template("users.html",
-        message="",
-        users=users,
-        user=session["user"],
-        main_menu=users_menu()
-        )
+    # if not session.get("user"):
+    #     flash("Login is required!!!")
+    #     return redirect(url_for("login"))
+
+    # if session["user"]["group"] != "admins":
+    #     flash("You don't have required privileges, try another user!!!")
+    #     return redirect(url_for("login"))
+
+    if action == "DELETE":
+        User.query.filter_by(email=email).delete()
+        db.session.commit()
+
+    return render_template("ok.html", 
+            page_title = "User has been deleted",
+            main_menu = menu(),
+            message = "User has been deleted"
+            )
+
+
 
 def users():
     if not session.get("user"):
         flash('Login is required!!!')
         return redirect(url_for("login"))
-    
-    users = ""
+    message = ""
+    users = []
 
-    if session["user"]["group"] == "admins":
-        # only admins can manage users.
-        users = User.query.all()
+    if session["user"]["group"] == "admins":        
+        #### NOT nice way
+
+        today_logins = f"""
+        select 
+            count(*)
+        from 
+            audit_log 
+        where 
+            activity = 'login' and time LIKE '""" + datetime.now().strftime("%F") + """% and where email = {}' 
+        group by email;
+        """
+
+        today = datetime.now().strftime("%F")
+        users = []
+        for usr in User.query.all():
+            #_usr = dict(usr)
+            new_u = usr.__dict__
+            email = new_u["email"]
+            new_u.pop("_sa_instance_state")
+            new_u.pop("password")
+            today_logins = f"""
+                select 
+                    count(*) as count
+                from 
+                    audit_log 
+                where 
+                    activity = 'login' and time LIKE '{today}%' and email = '{email}' 
+                group by email;
+                """
+            all_logins = f"""
+                select 
+                    count(*) as count
+                from 
+                    audit_log 
+                where 
+                    activity = 'login' and email = '{email}' 
+                group by email;
+                """
+
+            new_u["all_logins"] = 0
+            new_u["today_logins"] = 0
+            try:
+                new_u["all_logins"] = db.session.execute(all_logins).fetchone()[0]
+                new_u["today_logins"] = db.session.execute(today_logins).fetchone()[0]
+            except TypeError:
+                pass
+            
+            users.append(new_u)
+
     else:
-        users = User.query.filter_by(uid=uid).first()
+        message = "You are not authorized to this page!"
 
-    
-    if request.method != "POST":
-        return render_template("users.html",
+    return render_template("users.html",
             message="",
+            page_title = "User management",
             users=users,
             user=session["user"],
-            main_menu=users_menu()
-        )
+            main_menu=menu()
+    )
 
-    else:
-        email = request.form.get("email")
+
+def user_create():
+    """
+        CREATE user
+    """
+    msg = str()
+    try:
+        email = request.form.get("email") 
         password = request.form.get("password")
         group = request.form.get("group")
+        print("POST: ", email, " - ", group)
+
+        if len(email) * len(password) * len(group) == 0:
+            raise IndexError("Missing one of the input arguments, please check all fields!")
+
+
+        if User.create(email=email, password=password, group=group, enabled=1):
+            msg = f"New user with email {email} has been added."
         
-        # User.create(email=email, password=password)
-
-        if len(email) > 1 and len(password) > 1 and len(group) > 1:
-
-            if User.create(email=email, password=password, group=group, enabled=1) == True:
-                msg = f"New user with email {email} has been added."
-            else:
-                msg = f"Error ocured during adding user with email {email}. Maybe it already exists."
-
-            return render_template(
-                "users.html",
-                main_menu = users_menu(),
-                user=session["user"],
-                users=users,
-                message = msg
-            )
-
         else:
-            return render_template(
-                "users.html",
-                main_menu = users_menu(),
-                user=session["user"],
-                users=users,
-                message="Something went wrong!"
-                )
+            msg = f"Error ocured during adding user with email {email}. Maybe it already exists."
 
+    except IOError:
+        msg = "No data received"
+
+    finally:
+        return render_template(
+            "user_create.html",
+            main_menu = menu(),
+            message = msg,
+
+        )

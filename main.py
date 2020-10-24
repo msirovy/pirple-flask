@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.declarative import declarative_base
 from os import getenv
 from model import db, User
-from views import home, terms_of_use, privacy, about, users, login, logout
+from views import home, terms_of_use, privacy, about, users, user_create, login, logout, user_edit
 
 
 # GLOBAL CONFIG VARIABLES
@@ -48,14 +48,10 @@ app.add_url_rule("/about", view_func=about)
 
 app.add_url_rule("/users/login", view_func=login, methods=["GET", "POST"])
 app.add_url_rule("/users/logout", view_func=logout, methods=["GET", "POST"])
+app.add_url_rule("/users/<email>", view_func=user_edit, methods=["POST", "DELETE"])
 
-#app.add_url_rule("/users/dashboard", view_func=user_dashboard, methods=['GET','POST'])
-
-#app.add_url_rule("/users/add", view_func=users_add, methods=['GET','POST'])
-
-app.add_url_rule("/users/", view_func=users, methods=["GET", "POST"])
-
-#app.add_url_rule("/users/<int:uid>", view_func=users_list)
+app.add_url_rule("/users/", view_func=users, methods=["GET"])
+app.add_url_rule("/users/", view_func=user_create, methods=["POST"])
 
 
 
