@@ -13,6 +13,7 @@ ENVIRONMENT = getenv("ENV", "devel")
 DB_PATH = getenv('DB_PATH', f"db-{ENVIRONMENT}.db")
 DEBUG = getenv("DEBUG", True)
 PORT = getenv("PORT", 5000)
+PORT = getenv("HOST", "127.0.0.1")
 
 Base = declarative_base()
 app = Flask(__name__)
@@ -57,5 +58,5 @@ app.add_url_rule("/users/", view_func=user_create, methods=["POST"])
 
 if __name__ == "__main__":
     db.init_app(app)
-    app.run(debug=DEBUG, use_reloader=DEBUG, port=PORT)
+    app.run(debug=DEBUG, use_reloader=DEBUG, port=PORT, host=HOST)
 
