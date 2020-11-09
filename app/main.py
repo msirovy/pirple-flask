@@ -13,7 +13,7 @@ ENVIRONMENT = getenv("ENV", "devel")
 DB_PATH = getenv('DB_PATH', f"db-{ENVIRONMENT}.db")
 DEBUG = getenv("DEBUG", True)
 PORT = getenv("PORT", 5000)
-PORT = getenv("HOST", "127.0.0.1")
+HOST = getenv("HOST", "127.0.0.1")
 
 Base = declarative_base()
 app = Flask(__name__)
