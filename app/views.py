@@ -1,8 +1,9 @@
-from flask import Flask, jsonify, session, url_for, redirect, render_template, request, flash
+from flask import Flask, jsonify, session, url_for, redirect, render_template, request, flash, make_response
 from model import db, User, AuditLog
 from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.orm import joinedload
 from datetime import datetime
+from json import loads, dumps
 
 
 def menu():
@@ -19,11 +20,13 @@ def menu():
     try:
         if session["user"]["group"] == "admins":
             cust_menu = (
+                dict(title="Kanban", url="/kanban/"),
                 dict(title="Admin", url="/users/"),
                 dict(title="Logout", url="/users/logout"),
             )
         else:
             cust_menu = (
+                dict(title="Kanban", url="/kanban/"),
                 dict(title="Logout", url="/users/logout"),
             )
     except KeyError:
@@ -56,6 +59,54 @@ def about():
             page_title = "About Us",
             main_menu = menu()
             )
+
+def kanban():
+    return render_template("kanban.html",
+            page_title = "Personal Kanban board",
+            main_menu = menu()
+            )
+
+
+def kanban_api():
+    email = session["user"]["email"]
+    data = loads(db.session.execute(
+                        f"select tasks from users where email = '{email}';"
+                    ).fetchone()[0])
+
+    if len(data) == 0:
+        # initialize task data structure
+        data = dict(todo=[], wip=[], check=[], done=[])
+
+    if request.method == "POST":
+        print("Add new task")
+        data['todo'].append(request.get_json())
+        _data = dumps(data)
+        Q = f"UPDATE users SET tasks = '{_data}' WHERE email = '{email}';"
+        print(Q)
+        db.session.execute(Q)
+        db.session.commit()
+
+
+    if request.method in ["UPDATE", "PATCH"]:
+        print("update data")
+        _data = dumps(request.get_json())
+        Q = f"UPDATE users SET tasks = '{_data}' WHERE email = '{email}';"
+        print(Q)
+        db.session.execute(Q)
+        db.session.commit()
+    
+
+    print("Get tasks from DB")
+    data = loads(db.session.execute(f"select tasks from users where email = '{email}';").fetchone()[0])
+    print(data)
+
+    r = make_response(jsonify(data), 200)
+    r.headers.add("Access-Control-Allow-Origin", "*")
+    r.headers.add('Access-Control-Allow-Headers', "*")
+    r.headers.add('Access-Control-Allow-Methods', "*")
+    r.content_type = "application/json"
+
+    return r
 
 
 def login():

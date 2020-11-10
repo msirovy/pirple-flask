@@ -1,0 +1,8 @@
+
+Features list
+
+  * update task list to Kanban board
+  * rewrite tasks part to Vuejs (serve it as SPA and flask stays as a CRUD API)
+	* implement drag & drop for task manipulation
+	* save changes after each action (remove save button)
+	* add description field to each task
