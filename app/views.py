@@ -68,7 +68,12 @@ def kanban():
 
 
 def kanban_api():
-    email = session["user"]["email"]
+    email = ""
+    try:
+        email = session["user"]["email"]
+    except KeyError:
+        print("User is not loged in")
+
     data = loads(db.session.execute(
                         f"select tasks from users where email = '{email}';"
                     ).fetchone()[0])

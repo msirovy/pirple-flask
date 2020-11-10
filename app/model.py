@@ -14,7 +14,7 @@ class User(db.Model):
     password = db.Column(db.String(80), unique=False, nullable=False)
     group = db.Column(db.String(100), unique=False, default="users")
     enabled = db.Column(db.Integer, default=1)
-    tasks = db.Column(db.Text, default="")
+    tasks = db.Column(db.Text, default="{}")
 
     def __repr__(self):
         return self.email
