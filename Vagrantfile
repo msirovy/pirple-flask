@@ -11,12 +11,12 @@ Vagrant.configure("2") do |config|
   config.vm.network "forwarded_port", guest: 80, host: 18080
 	
 	# shared folder 
-	config.vm.synced_folder './app', '/tmp/app', type: 'rsync'
+	config.vm.synced_folder './', '/tmp/app', type: 'rsync'
 
 	# install VM and configure app
-  config.vm.provision "shell", path: "install_vm.sh"
-  config.vm.provision "shell", path: "install_uwsgi.sh"
-  config.vm.provision "shell", path: "install_app.sh"
+  config.vm.provision "shell", path: "scripts/install_vm.sh"
+  config.vm.provision "shell", path: "scripts/install_uwsgi.sh"
+  config.vm.provision "shell", path: "scripts/install_app.sh"
 
 
 end
