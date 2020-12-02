@@ -1,21 +1,25 @@
-Installation
-============
+Simple Flask application with Vue.js kanban board
+=================================================
+
+This is monorepo application containing FE (frontend) and BE (backend) parts together with a development environment (Vagrant). Running development ENV of this application is as easy as using Makefile, please try run make in root directory of that repo to see more help.
+
+Run the application (devel)
+---------------------------
 
 ```bash
-pip3 install -r requirements.txt
-python3 db_init.py
+make run-dev    # install dependencies, build FE etc...
 ```
 
-
-Running
-=======
-
+If you run the application first time, please run this commands before:
 ```bash
-python3 main.py
+make db-init    # initialize new empty database and provides admin's password to you
 ```
 
 Start in GCP
 ============
+```bash
+make gcp
+```
 
 Run instance
 ------------

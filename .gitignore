@@ -1,3 +1,6 @@
 app/__pycache__/*
-app/*.db
+be/*.db
+be/static/kanban/
 .vagrant/*
+.DS*
+*/dist/*

@@ -2,7 +2,7 @@
 
 from sqlalchemy.ext.declarative import declarative_base
 from model import db, User
-from main import app, DB_PATH
+from main import app, DB_URI
 from lib import generate_password
 from sqlalchemy.exc import IntegrityError
 from os import getenv, path
@@ -11,7 +11,7 @@ from os import getenv, path
 
 with app.test_request_context():
     db.init_app(app)
-    if path.exists(DB_PATH):
+    if path.exists(DB_URI):
         print("Database has been already initialized...")
         exit(0)
 

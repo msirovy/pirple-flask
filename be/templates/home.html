@@ -22,8 +22,10 @@ pip3 install -r requirements.txt
 <pre>
 ENV             ... default is devel
 DEBUG           ... default is True
-DB_PATH         ... path to sqlite3 db file. Default is db-${ENV}.db
+DB_URI          ... path to db, default is sqlite:///db-ENV.db 
 </pre>
 
+
+Another posibilities are Docker and Vagrant...
 
 {% endblock main %}
