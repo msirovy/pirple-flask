@@ -41,4 +41,4 @@ run-dev: be fe-kanban		# run prerequisities first
 	mv be/static/kanban/kanban.html.j2 be/templates/kanban.html.j2
 	rm be/static/kanban/index.html
 	@echo "Run whole app, FE will be served by Flask"
-	cd api; ./main.py
+	cd be; ./main.py
